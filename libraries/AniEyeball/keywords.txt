@@ -1,0 +1,3 @@
+AniEyeball	KEYWORD1
+TurnLeftSlowly	KEYWORD2
+TurnRightSlowly	KEYWORD2
