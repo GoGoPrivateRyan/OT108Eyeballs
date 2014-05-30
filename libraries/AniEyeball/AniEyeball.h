@@ -17,6 +17,8 @@ class AniEyeball
     AniEyeball(int pinServoP, int pinServoB);
     void setPinP(int pinP);
     void setPinB(int pinB);
+    void setPPos(int msec);
+    void setBPos(int msec);
     void acting(int n);
     void mix();
     void center();
