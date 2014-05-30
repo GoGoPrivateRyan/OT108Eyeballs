@@ -1,14 +1,14 @@
 #include <Servo.h>
 #include <AniEyeball.h>
 
-#define N_EYEBALL 3
+#define N_EYEBALL 4
 
 AniEyeball ot108eyeball[N_EYEBALL];
 
 // 眼皮_PIN # i
 // 眼球_PIN # i+1
 //const byte servoPin[N_EYEBALL*2] = {2,3,4,5,6,7,8,9,10,11,12,13};
-const byte servoPin[N_EYEBALL*2] = {2,3,4,5,6,7};
+const byte servoPin[N_EYEBALL*2] = {2,3,4,5,6,7,8,9};
 
 void setup()
 {
@@ -24,22 +24,50 @@ void setup()
 void loop()
 {
   for (int i=0; i<N_EYEBALL; i++)
+    ot108eyeball[i].setPPos(1000); // 眼皮全開
+  delay(500);
+
+  for (int pos=1000; pos<=2000; pos+=250)
   {
-  	long randNumber = random(0, 7);
-  	if (randNumber <= 1)
-      ot108eyeball[i].acting(1);
-    else if (randNumber <= 2)
-      ot108eyeball[i].acting(2);
-    else if (randNumber <= 3)
-      ot108eyeball[i].acting(3);
-    else if (randNumber <= 4)
-      ot108eyeball[i].acting(4);
-    else if (randNumber <= 5)
-      ot108eyeball[i].acting(5);
-    else if (randNumber <= 6)
-      ot108eyeball[i].acting(6);
-    else
-      ot108eyeball[i].acting(7);
-  }  
-  delay(1000);
+    for (int i=0; i<N_EYEBALL; i++)
+    {
+      ot108eyeball[i].setBPos(pos); // 眼球 左->右
+      delay(150);
+    }
+  }
+  delay(500);
+    
+  for (int pos=2000; pos>=1000; pos-=250)
+  {
+    for (int i=N_EYEBALL-1; i>=0; i--)
+    {
+      ot108eyeball[i].setBPos(pos); // 眼球 右->左
+      delay(150);
+    }
+  }
+  delay(500);
+
+  for (int pos=1000; pos<=2000; pos+=500)
+  {
+    for (int i=0; i<N_EYEBALL; i++)
+    {
+      ot108eyeball[i].setBPos(pos); // 眼球 左->右
+      delay(150);
+    }
+  }
+  delay(500);
+    
+  for (int pos=2000; pos>=1000; pos-=500)
+  {
+    for (int i=N_EYEBALL-1; i>=0; i--)
+    {
+      ot108eyeball[i].setBPos(pos); // 眼球 右->左
+      delay(150);
+    }
+  }
+  delay(500);
+
+  for (int i=0; i<N_EYEBALL; i++)
+    ot108eyeball[i].setPPos(2000); // 眼皮全閉
+  delay(500);
 }
