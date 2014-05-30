@@ -42,6 +42,32 @@ void AniEyeball::setPinB(int pinB)
   _servoB.attach(_pinServoB);
 }
 
+void AniEyeball::setPPos(int msec)
+{
+  if (msec > 2000) posP = 2000;
+  if (msec < 1000) posP = 1000;
+  posP = msec;
+  
+  if (!_servoP.attached()) _servoP.attach(_pinServoP);  
+  _servoP.writeMicroseconds(posP);
+  delay(15);      
+
+  //_servoP.detach();
+}
+
+void AniEyeball::setBPos(int msec)
+{
+  if (msec > 2000) posB = 2000;
+  if (msec < 1000) posB = 1000;
+  posB = msec;
+  
+  if (!_servoB.attached()) _servoB.attach(_pinServoB);  
+  _servoB.writeMicroseconds(posB);
+  delay(15);      
+
+  //_servoB.detach();
+}
+
 void AniEyeball::acting(int n)
 {
   switch (n)
