@@ -68,29 +68,159 @@ void AniEyeball::setBPos(int msec)
   //_servoB.detach();
 }
 
+void AniEyeball::setFaceTrackingFlag(int flag)
+{
+  // 大眼仔相對 webcam 的位置 
+  //   左 ---  中 --- 右   
+  //   -2, -1, 0,  1, 2  
+  _faceTrackingFlag = flag;
+}
+
+void AniEyeball::faceTrackingMoving(int n)
+{
+  // 根據大眼仔的相對位置做轉動 
+  //   (Move) -2, -1, 0, 1, 2
+  // (Flag)
+  //   -2     0,  1,  2,  2, 2
+  //   -1    -1,  0,  1,  2, 2
+  //    0    -2, -1,  0,  1, 2
+  //    1    -2, -2, -1,  0, 1
+  //    2    -2, -2, -2, -1, 0
+
+  setPPos(1000);
+  delay(15);
+  
+  switch (_faceTrackingFlag) // 大眼仔的相對位置
+  {
+    case FT_L2:
+      switch (n) // 人臉位置
+      {
+        case FT_L2:
+          setBPos(1500); // 眼珠轉中間
+          delay(15);
+          break;
+        case FT_L1:
+          setBPos(1750); // 眼珠轉右一
+          delay(15);
+          break;
+        default:
+          setBPos(2000); // 眼珠轉右二
+          delay(15);        
+          break;
+      }
+      break;
+    case FT_L1:
+      switch (n) // 人臉位置
+      {
+        case FT_L2:
+          setBPos(1250); // 眼珠轉左一
+          delay(15);
+          break;
+        case FT_L1:
+          setBPos(1500); // 眼珠轉中
+          delay(15);
+          break;
+        case FT_M:
+          setBPos(1750); // 眼珠轉右一
+          delay(15);        
+          break;
+        default:
+          setBPos(2000); // 眼珠轉右二
+          delay(15);        
+          break;
+      }    
+      break;
+    case FT_M:
+      switch (n)
+      {
+        case FT_L2:
+          setBPos(1000); // 眼珠轉左二
+          delay(15);
+          break;
+        case FT_L1:
+          setBPos(1250); // 眼珠轉左一
+          delay(15);
+          break;
+        case FT_M:
+          setBPos(1500); // 眼珠轉中
+          delay(15);        
+          break;
+        case FT_R1:
+          setBPos(1750); // 眼珠轉右一
+          delay(15);                
+          break;
+        default:
+          setBPos(2000); // 眼珠轉右二
+          delay(15);        
+          break;
+      }        
+      break;
+    case FT_R1:
+      switch (n)
+      {
+        case FT_M:
+          setBPos(1250); // 眼珠轉左一
+          delay(15);        
+          break;
+        case FT_R1:
+          setBPos(1500); // 眼珠轉中
+          delay(15);                
+          break;
+        case FT_R2:
+          setBPos(1750); // 眼珠轉右一
+          delay(15);        
+          break;
+        default:
+          setBPos(1000); // 眼珠轉左二
+          delay(15);        
+          break;
+      }            
+      break;
+    case FT_R2:
+      switch (n)
+      {
+        case FT_R1:
+          setBPos(1250); // 眼珠轉左一
+          delay(15);                
+          break;
+        case FT_R2:
+          setBPos(1500); // 眼珠轉中
+          delay(15);        
+          break;
+        default:
+          setBPos(1000); //眼珠轉左二 
+          delay(15);        
+          break;
+      }                
+      break;
+    default:
+      break;
+  }
+}
+
 void AniEyeball::acting(int n)
 {
   switch (n)
   {
-    case 1:
-      turnLeftSlowly();
+    case 0:
+      aebCSleepy();
       break;
+    case 1:
+      aebCTurnLeftSlowly();
+      break;      
     case 2:
-      turnRightSlowly();
+      aebCTurnRightSlowly();
       break;
     case 3:
-      turnLeftBlinking();
+      aebCLeftBlinking();
       break;
     case 4:
-      turnRightBlinking();
+      aebCRightBlinking();
       break;
     case 5:
-      guarding();
+      aebCGuarding();
       break;
     case 6:
-      sleepy();
-      break;
-    case 7:
       mix();
       break;
     default:
@@ -98,22 +228,104 @@ void AniEyeball::acting(int n)
   }
 }
 
-void AniEyeball::center()
+// Eyelid 眼皮動作
+void AniEyeball::aebPClose()
+{
+  if (!_servoP.attached()) _servoP.attach(_pinServoP);
+  
+  posP = 2000;
+  _servoP.writeMicroseconds(posP); 
+  delay(15);  
+
+  _servoP.detach();  
+}
+
+void AniEyeball::aebPOpen()
+{
+  if (!_servoP.attached()) _servoP.attach(_pinServoP);
+  
+  posP = 1000;
+  _servoP.writeMicroseconds(posP); 
+  delay(15);  
+
+  _servoP.detach();  
+}
+
+void AniEyeball::aebPUp2Third()
+{
+  if (!_servoP.attached()) _servoP.attach(_pinServoP);
+  
+  posP = 1300;
+  _servoP.writeMicroseconds(posP); 
+  delay(15);  
+
+  _servoP.detach();  
+}
+
+void AniEyeball::aebPDown2Third()
+{
+  if (!_servoP.attached()) _servoP.attach(_pinServoP);
+  
+  posP = 1700;
+  _servoP.writeMicroseconds(posP); 
+  delay(15);  
+
+  _servoP.detach();  
+}
+
+// Eyeball 眼球動作
+void AniEyeball::aebBLeft()
+{
+  if (!_servoB.attached()) _servoB.attach(_pinServoB);
+  
+  posB = 1000;
+  _servoB.writeMicroseconds(posB); 
+  delay(15);  
+
+  _servoB.detach();  
+}
+
+void AniEyeball::aebBMiddle()
+{
+  if (!_servoB.attached()) _servoB.attach(_pinServoB);
+  
+  posB = 1500;
+  _servoB.writeMicroseconds(posB); 
+  delay(15);  
+
+  _servoB.detach();  
+}
+
+void AniEyeball::aebBRight()
+{
+  if (!_servoB.attached()) _servoB.attach(_pinServoB);
+  
+  posB = 2000;
+  _servoB.writeMicroseconds(posB); 
+  delay(15);  
+
+  _servoB.detach();  
+}
+
+// 組合動作
+void AniEyeball::aebCResting()
 {
   if (!_servoP.attached()) _servoP.attach(_pinServoP);
   if (!_servoB.attached()) _servoB.attach(_pinServoB);
 
-  posP = posB = 1500;
+  posP = 2000;
+  posB = 1500;
 
-  _servoP.writeMicroseconds(posP);  
+  _servoP.writeMicroseconds(posP);
+  delay(150);
   _servoB.writeMicroseconds(posB);
-  delay(15);      
+  delay(100);
 
   _servoP.detach();
-  _servoB.detach();
+  _servoB.detach();  
 }
 
-void AniEyeball::turnLeftSlowly()
+void AniEyeball::aebCTurnLeftSlowly()
 {
   if (!_servoP.attached()) _servoP.attach(_pinServoP);
   if (!_servoB.attached()) _servoB.attach(_pinServoB);
@@ -122,23 +334,24 @@ void AniEyeball::turnLeftSlowly()
   posB = 1800;
   
   _servoP.writeMicroseconds(posP);  
+  delay(100);
   _servoB.writeMicroseconds(posB);
   delay(1000);
   
   while (posB >= 1000)
   {
     _servoB.writeMicroseconds(posB);  
-    posB -= 200;
+    posB -= 50;
     delay(100);
   } 
 
-//  delay(3000);
+  delay(500);
 
   _servoP.detach();
   _servoB.detach();  
 }
 
-void AniEyeball::turnRightSlowly()
+void AniEyeball::aebCTurnRightSlowly()
 {
   if (!_servoP.attached()) _servoP.attach(_pinServoP);
   if (!_servoB.attached()) _servoB.attach(_pinServoB);
@@ -146,147 +359,113 @@ void AniEyeball::turnRightSlowly()
   posP = 1000;
   posB = 1200;
   
-  _servoP.writeMicroseconds(posP);  
+  _servoP.writeMicroseconds(posP); 
+  delay(100); 
   _servoB.writeMicroseconds(posB);
   delay(1000);
   
   while (posB <= 2000)
   {
     _servoB.writeMicroseconds(posB);  
-    posB += 200;
+    posB += 50;
     delay(100);
   } 
 
-//  delay(3000);
+  delay(500);
 
   _servoP.detach();
   _servoB.detach();  
 }
 
-void AniEyeball::turnLeftBlinking()
+void AniEyeball::aebCLeftBlinking()
 {
-  // 眼皮: 
-  //   - 閉 -> 全開, 瞬開
-  // 眼球
-  //   - 中 -> 左, 慢慢
-  // 眼皮:
-  //   - 全開 -> 閉, 瞬閉
-
   if (!_servoP.attached()) _servoP.attach(_pinServoP);
   if (!_servoB.attached()) _servoB.attach(_pinServoB);
-
-  _servoP.writeMicroseconds(2000);
-  delay(1000);
 
   _servoP.writeMicroseconds(1000);
   delay(1000);
 
-  posB = 1700;
-  _servoB.writeMicroseconds(posB);
+  _servoB.writeMicroseconds(1200);
   delay(500);
 
-  while (posB > 1000)
+  for (int i=0; i<10; i++)
   {
-    posB -= 50;
-    _servoB.writeMicroseconds(posB);
-    delay(30);
+    _servoP.writeMicroseconds(1500);
+    delay(150);
+    _servoP.writeMicroseconds(1000);
+    delay(150);
   }
-  delay(3000);
 
-  _servoP.writeMicroseconds(2000);
-//  delay(1000);
+  delay(500);
 
   _servoP.detach();
   _servoB.detach();    
 }
 
-void AniEyeball::turnRightBlinking()
+void AniEyeball::aebCRightBlinking()
 {
-  // 眼皮: 
-  //   - 閉 -> 全開, 瞬開
-  // 眼球
-  //   - 中 -> 右, 慢慢
-  // 眼皮:
-  //   - 全開 -> 閉, 瞬閉
-
   if (!_servoP.attached()) _servoP.attach(_pinServoP);
   if (!_servoB.attached()) _servoB.attach(_pinServoB);
-
-  _servoP.writeMicroseconds(2000);
-  delay(1000);
 
   _servoP.writeMicroseconds(1000);
   delay(1000);
 
-  posB = 1300;
-  _servoB.writeMicroseconds(posB);
+  _servoB.writeMicroseconds(1800);
   delay(500);
 
-  while (posB < 2000)
+  for (int i=0; i<10; i++)
   {
-    posB += 50;
-    _servoB.writeMicroseconds(posB);
-    delay(30);
+    _servoP.writeMicroseconds(1500);
+    delay(150);
+    _servoP.writeMicroseconds(1000);
+    delay(150);    
   }
-  delay(3000);
-
-  _servoP.writeMicroseconds(2000);
-//  delay(1000);
+  
+  delay(500);
 
   _servoP.detach();
   _servoB.detach();      
 }
 
-void AniEyeball::guarding()
+void AniEyeball::aebCGuarding()
 {
-  // 眼皮: 
-  //   - 閉 -> 全開, 瞬開
-  // 眼球
-  //   - 中+ -> 左 -> 右, 瞬轉
-  // 眼皮:
-  //   - 全開 -> -半閉, 瞬閉
-  //   - 重覆 2 遍
-
   if (!_servoP.attached()) _servoP.attach(_pinServoP);
   if (!_servoB.attached()) _servoB.attach(_pinServoB);
 
+  // 眼皮, 閉
   _servoP.writeMicroseconds(2000);
-  _servoB.writeMicroseconds(1800);
   delay(1000);
-
+ 
+  // 眼皮, 瞬開
   _servoP.writeMicroseconds(1000);
-  _servoB.writeMicroseconds(1000);
   delay(500);
 
-  _servoB.writeMicroseconds(2000);
-
-  for (int i=0; i<2; i++)
+  // 眼球, 左右反覆 2 遍
+  for (int i=0; i<8; i++)
   {
-    _servoP.writeMicroseconds(1800);
+    _servoB.writeMicroseconds(1000);
     delay(500);  
-
-    _servoP.writeMicroseconds(1000);
+    _servoB.writeMicroseconds(2000);
     delay(500);
   }  
-//  delay(1000);  
+
+  delay(500);  
 
   _servoP.detach();
   _servoB.detach();        
 }
 
-void AniEyeball::sleepy()
+void AniEyeball::aebCSleepy()
 {
-  // 眼皮: 
-  //   - 閉 -> +半開, 慢慢張開
-  //   - +半開 -> 閉, 瞬閉
-  //   - 重覆 3 遍
-
   if (!_servoP.attached()) _servoP.attach(_pinServoP);
   if (!_servoB.attached()) _servoB.attach(_pinServoB);
 
+  _servoB.writeMicroseconds(1500);
+  delay(1000);
+
   posP = 2000;
 
-  for (int i=0; i<3; i++)
+  for (int i=0; i<8; i++)
   {
     while (posP >= 1200)
     { 
@@ -294,15 +473,16 @@ void AniEyeball::sleepy()
       posP -= 50;
       delay(100);
     }
-    delay(1000);
+    delay(2000);
     posP = 2000;
     _servoP.writeMicroseconds(posP);  
     delay(1000);
   }
- // delay(1000);
 
-  _servoP.detach();
-  _servoB.detach();          
+  delay(500);
+
+  _servoB.detach();      
+  _servoP.detach();      
 }
 
 void AniEyeball::mix()
